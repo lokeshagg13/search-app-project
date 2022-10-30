@@ -1,21 +1,59 @@
 /* eslint-disable no-console */
-const mongoose = require('mongoose')
-const dotenv = require('dotenv')
+const mongoose = require("mongoose");
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
-dotenv.config({ path: './config.env' })
-const app = require('./app')
+const errorHandler = require("./Middleware/errorHandler");
+const credentials = require("./Middleware/credentials");
+const corsOptions = require("./Config/corsOptions");
+const userRouter = require("./Routes/userRoute");
+const authRouter = require("./Routes/authRoute");
+const refreshRouter = require("./Routes/refreshRoute");
+const logoutRouter = require("./Routes/logoutRoute");
+
+require("dotenv").config();
+
+const app = express();
+
+// Allow credentials for origin
+app.use(credentials);
+
+// Cross origin allow origins
+app.use(cors(corsOptions));
+
+// built-in middleware for url encoded data
+app.use(express.urlencoded({ extended: false }));
+
+// built-in middleware for json
+app.use(express.json());
+
+// built-in middleware cookie parser
+app.use(cookieParser());
+
+// Mounting Routers
+app.use("/", userRouter);
+app.use("/", authRouter);
+app.use("/", refreshRouter);
+app.use("/", logoutRouter);
+
+// custom middleware for handling invalid api paths
+app.all("*", (req, res, next) => {
+  next(
+    new errorHandler(`Can't find ${req.originalUrl} that was requested`, 404)
+  );
+});
 
 // DB Connection
 mongoose
   .connect(process.env.DATABASE_LOCAL, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
+    useUnifiedTopology: true,
   })
-  .then(() => console.log('Database Connected'))
+  .then(() => console.log("Database Connected"));
 
 // Setting up port
-const port = process.env.PORT // Assign Port
+const port = process.env.PORT; // Assign Port
 app.listen(port, () => {
-  console.log(`App Running On Port: ${port} ...`)
-})
+  console.log(`App Running On Port: ${port} ...`);
+});
