@@ -63,7 +63,24 @@ function SignupForm() {
           withCredentials: true,
         }
       );
-    } catch (error) {}
+      setSignupStatus("success");
+      setSignupRemarks("Registration successful ");
+
+      // Clear input fields
+      setName("");
+      setEmail("");
+      setPassword("");
+      setPasswordConfirm("");
+    } catch (error) {
+      setSignupStatus("error");
+      if (!error?.response) {
+        setSignupRemarks("No server response !!!");
+      } else if (error.response?.status === 409) {
+        setSignupRemarks("Email is already registered with us !!!");
+      } else {
+        setSignupRemarks("Registration failed !!!");
+      }
+    }
   }
 
   return (
