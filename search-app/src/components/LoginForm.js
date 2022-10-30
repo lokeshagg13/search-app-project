@@ -6,7 +6,7 @@ import AuthContext from "../context/AuthProvider";
 
 import classes from "./LoginForm.module.css";
 
-const LOGIN_URL = "/login";
+const LOGIN_URL = "/api/login";
 
 function LoginForm() {
   const emailRef = useRef();
@@ -28,10 +28,11 @@ function LoginForm() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [email, password, loginStatus]);
+  }, [loginStatus]);
 
   async function handleLogin(event) {
     event.preventDefault();
+
     setLoginStatus("pending");
     setLoginRemarks("Logging you in");
     try {
