@@ -22,11 +22,20 @@ function SignupForm() {
   }, []);
 
   useEffect(() => {
-    setSignupStatus("");
-    setSignupRemarks("");
-  }, [name, email, password]);
+    if (
+      signupStatus === "error" &&
+      !signupRemarks.includes("Passwords do not match")
+    ) {
+      const timer = setTimeout(() => {
+        setSignupStatus("");
+        setSignupRemarks("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [signupStatus, signupRemarks]);
 
   useEffect(() => {
+    if (signupStatus === "success") return;
     if (password.trim() === "" || passwordConfirm.trim === "") {
       setSignupStatus("");
       setSignupRemarks("");
@@ -55,7 +64,7 @@ function SignupForm() {
     setSignupStatus("pending");
     setSignupRemarks("Registering your details...");
     try {
-      const response = await axios.post(
+      await axios.post(
         REGISTER_URL,
         JSON.stringify({ name, email, password }),
         {
@@ -137,6 +146,7 @@ function SignupForm() {
         )}
         <div className={classes.actions}>
           <button>Create Account</button>
+          {/* <Link href="/login">Already Registered? Login here</Link> */}
         </div>
       </form>
     </section>

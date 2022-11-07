@@ -41,13 +41,31 @@ function LoginForm() {
         JSON.stringify({
           email,
           password,
-        })
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       );
-    } catch (error) {}
-    setTimeout(() => {
+
+      const accessToken = response?.data?.accessToken;
+      setAuth({ email, password, accessToken });
       setLoginStatus("success");
       setLoginRemarks("Login Successful");
-    }, 3000);
+
+      // Clear input fields
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      setLoginStatus("error");
+      if (!error?.response) {
+        setLoginRemarks("No server response !!!");
+      } else if (error.response?.status === 400 || error.response?.status === 401) {
+        setLoginRemarks("Invalid Credentials !!!");
+      } else {
+        setLoginRemarks("Login failed !!!");
+      }
+    }
   }
 
   return (
@@ -82,7 +100,7 @@ function LoginForm() {
         )}
         <div className={classes.actions}>
           <button type="submit">Login</button>
-          {/* <Link href="/signup">Create new account</Link> */}
+          {/* <Link href="/signup">Not Registered? Create new account here</Link> */}
         </div>
       </form>
     </section>
