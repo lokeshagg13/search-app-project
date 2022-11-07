@@ -10,7 +10,7 @@ exports.handleRefreshToken = async (req, res) => {
   try {
     const cookies = req.cookies;
     if (!cookies?.jwt) {
-      return res.status(401).json({ message: "Authorization failed" });
+      return res.status(401).json({ message: "Auth failed" });
     }
 
     const refreshToken = cookies.jwt;
