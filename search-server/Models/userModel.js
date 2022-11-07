@@ -17,10 +17,6 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     trim: true,
   },
-  refreshToken: {
-    type: String,
-    default: "",
-  },
 });
 
 userSchema.index({ email: 1 }, { unique: true });

@@ -53,6 +53,14 @@
   align-items: center;
 }
 
+.actions a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  text-decoration: underline;
+}
+
 .actions button:hover {
   background-color: #873abb;
   border-color: #873abb;

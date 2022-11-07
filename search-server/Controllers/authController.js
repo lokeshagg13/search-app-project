@@ -42,24 +42,7 @@ exports.loginUser = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
-    const refreshToken = jwt.sign(
-      {
-        email: email,
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
 
-    await userModel.updateOne(
-      { email: email },
-      { $set: { refreshToken: refreshToken } }
-    );
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: 'None',
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
     res.status(200).json({
       accessToken,
     });

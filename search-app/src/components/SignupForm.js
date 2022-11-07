@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 import axios from "../api/axios";
 import Notification from "./ui/Notification";
@@ -48,7 +49,7 @@ function SignupForm() {
       setSignupStatus("error");
       setSignupRemarks("Passwords do not match!");
     }
-  }, [password, passwordConfirm]);
+  }, [signupStatus, password, passwordConfirm]);
 
   async function handleSignup(event) {
     event.preventDefault();
@@ -146,7 +147,7 @@ function SignupForm() {
         )}
         <div className={classes.actions}>
           <button>Create Account</button>
-          {/* <Link href="/login">Already Registered? Login here</Link> */}
+          <Link to="/login">Already Registered? Login here</Link>
         </div>
       </form>
     </section>

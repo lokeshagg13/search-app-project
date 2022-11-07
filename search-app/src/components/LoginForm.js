@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 import axios from "../api/axios";
 import Notification from "./ui/Notification";
@@ -11,6 +12,9 @@ const LOGIN_URL = "/api/login";
 function LoginForm() {
   const emailRef = useRef();
   const { setAuth } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState("");
@@ -50,17 +54,20 @@ function LoginForm() {
 
       const accessToken = response?.data?.accessToken;
       setAuth({ email, password, accessToken });
-      setLoginStatus("success");
-      setLoginRemarks("Login Successful");
 
       // Clear input fields
       setEmail("");
       setPassword("");
+
+      navigate("/search", { replace: true });
     } catch (error) {
       setLoginStatus("error");
       if (!error?.response) {
         setLoginRemarks("No server response !!!");
-      } else if (error.response?.status === 400 || error.response?.status === 401) {
+      } else if (
+        error.response?.status === 400 ||
+        error.response?.status === 401
+      ) {
         setLoginRemarks("Invalid Credentials !!!");
       } else {
         setLoginRemarks("Login failed !!!");
@@ -100,7 +107,7 @@ function LoginForm() {
         )}
         <div className={classes.actions}>
           <button type="submit">Login</button>
-          {/* <Link href="/signup">Not Registered? Create new account here</Link> */}
+          <Link to="/signup">Not Registered? Create new account here</Link>
         </div>
       </form>
     </section>
