@@ -5,6 +5,11 @@ const searchController = require("../Controllers/searchController");
 // Router Mounting
 const searchRouter = express.Router();
 
+// Route for getting all images
+searchRouter
+  .route("/images/all")
+  .get(verifyJWT, searchController.getAllImages);
+
 // Routes for image search
 searchRouter
   .route("/images/search")
