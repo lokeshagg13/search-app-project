@@ -11,22 +11,30 @@ import classes from "./main-navigation.module.css";
 
 const LOGOUR_URL = "/api/logout";
 
+// Navigation Bar
 function MainNavigation() {
+  // Check auth and display different elements in nav bar based on whether user is logged in or not
   const { auth, setAuth } = useAuth();
+  // Private server handle for protected logout route
   const axiosPrivate = useAxiosPrivate();
+  // Navigate hook to manually navigate to different pages
   const navigate = useNavigate();
 
+  // Function to handle logout
   async function logoutHandler() {
     try {
+      // Get request to backend server for logout
       await axiosPrivate.get(LOGOUR_URL);
-
+      // Reset the auth on logout
       setAuth({});
+      // Navigate back to home
       navigate("/", { replace: true });
     } catch (error) {
       alert(error.message);
     }
   }
 
+  // If authorized, then show only logout button on navbar otherwise show login and signup button
   return (
     <header className={classes.header}>
       <div className={classes.logo}>

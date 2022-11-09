@@ -8,6 +8,7 @@ import classes from "./SignupForm.module.css";
 
 const REGISTER_URL = "/api/register";
 
+// Sign up or registration form
 function SignupForm() {
   const nameRef = useRef();
 
@@ -18,10 +19,13 @@ function SignupForm() {
   const [signupStatus, setSignupStatus] = useState("");
   const [signupRemarks, setSignupRemarks] = useState("");
 
+  // On load of component, set focus on name input
   useEffect(() => {
     nameRef.current.focus();
   }, []);
 
+  // Whenever signupStatus becomes "error" (in case of any failure), make signupStatus and signupRemarks as ""
+  // in order to make the error notification disappear after 5 seconds
   useEffect(() => {
     if (
       signupStatus === "error" &&
@@ -35,6 +39,8 @@ function SignupForm() {
     }
   }, [signupStatus, signupRemarks]);
 
+  // Whenever signup status or passwords are changed, (Used for telling user whether the password and passwordConfirm field matches or not)
+  // It is useful because the password is hidden even while entering
   useEffect(() => {
     if (signupStatus === "success") return;
     if (password.trim() === "" || passwordConfirm.trim === "") {
@@ -51,9 +57,11 @@ function SignupForm() {
     }
   }, [signupStatus, password, passwordConfirm]);
 
+  // Handle sign up by sending register request to backend server
   async function handleSignup(event) {
     event.preventDefault();
 
+    // Check if email is correct
     if (
       /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/gm.test(email) === false
     ) {
@@ -65,6 +73,7 @@ function SignupForm() {
     setSignupStatus("pending");
     setSignupRemarks("Registering your details...");
     try {
+      // Axios request to backend server for registration
       await axios.post(
         REGISTER_URL,
         JSON.stringify({ name, email, password }),
@@ -82,6 +91,7 @@ function SignupForm() {
       setPassword("");
       setPasswordConfirm("");
     } catch (error) {
+      // Handling errors from server end 
       setSignupStatus("error");
       if (!error?.response) {
         setSignupRemarks("No server response !!!");
@@ -93,6 +103,7 @@ function SignupForm() {
     }
   }
 
+  // Signup form
   return (
     <section className={classes.auth}>
       <h1>Sign Up</h1>

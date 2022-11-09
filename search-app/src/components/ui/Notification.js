@@ -3,6 +3,7 @@ import InfoIcon from "./icons/InfoIcon";
 import SuccessIcon from "./icons/SuccessIcon";
 import classes from "./Notification.module.css";
 
+// Notification sign to notify user if there is a pending state or of the success and error message
 function Notification(props) {
   const { type, message } = props;
   let divClass = classes.info;
