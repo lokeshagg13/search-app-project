@@ -2,18 +2,19 @@ const axios = require("axios");
 require("dotenv").config();
 
 exports.getAllImages = async (req, res) => {
-  const BASE_URL = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?max_results=9`;
+  const BASE_URL = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image`;
   const auth = {
     username: process.env.CLOUDINARY_API_KEY,
     password: process.env.CLOUDINARY_API_SECRET,
   };
+  const params = new URLSearchParams();
+  params.append("max_results", 9);
   try {
-    let MAIN_URL = `${BASE_URL}`;
-    const { next_cursor } = req.query;
-    if (next_cursor) {
-      MAIN_URL = `${BASE_URL}&next_cursor=${next_cursor}`;
+    const { nextCursor } = req.query;
+    if (nextCursor) {
+      params.append("next_cursor", nextCursor);
     }
-    const response = await axios.get(MAIN_URL, {
+    const response = await axios.get(`${BASE_URL}?${params}`, {
       auth,
     });
 
@@ -30,26 +31,24 @@ exports.searchImage = async (req, res) => {
     password: process.env.CLOUDINARY_API_SECRET,
   };
   try {
-    const { searchExp } = req.body;
+    const { searchExp, nextCursor } = req.body;
     if (!searchExp) {
       return res
         .status(400)
         .json({ message: "Invalid request for image search" });
     }
 
-    const response = await axios.post(
-      BASE_URL,
-      JSON.stringify({
-        expression: searchExp,
-        max_results: 9,
-      }),
-      {
-        auth,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const requestBody = { expression: searchExp, max_results: 9 };
+    if (nextCursor) {
+      requestBody["next_cursor"] = nextCursor;
+    }
+
+    const response = await axios.post(BASE_URL, JSON.stringify(requestBody), {
+      auth,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     const filteredResources = response.data.resources.filter(
       (item) => item.resource_type == "image"
