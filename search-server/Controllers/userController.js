@@ -4,6 +4,7 @@
 const bcrypt = require("bcryptjs");
 const { userModel } = require("../Models/userModel");
 
+// For registration of user
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;

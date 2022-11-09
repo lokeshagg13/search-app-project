@@ -6,8 +6,11 @@ const { userModel } = require("../Models/userModel");
 
 require("dotenv").config();
 
+// Handling refreshing of sessions
 exports.handleRefreshToken = async (req, res) => {
   try {
+
+    // Check if JWT cookie exist in request body
     const cookies = req.cookies;
     if (!cookies?.jwt) {
       return res.status(401).json({ message: "Auth failed" });
@@ -15,12 +18,13 @@ exports.handleRefreshToken = async (req, res) => {
 
     const refreshToken = cookies.jwt;
 
-    // Check if email is registered or not
+    // Check if refresh token exist in the DB
     const user = await userModel.find({ refreshToken: refreshToken });
     if (user.length == 0) {
       return res.status(401).json({ message: "Refresh token is invalid" });
     }
 
+    // Verify the refresh token and create a new access token
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,

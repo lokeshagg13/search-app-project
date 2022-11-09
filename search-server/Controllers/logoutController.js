@@ -6,9 +6,11 @@ const { userModel } = require("../Models/userModel");
 
 require("dotenv").config();
 
+// Handling logout
 exports.logoutUser = async (req, res) => {
   try {
     const cookies = req.cookies;
+    // Check if jwt cookie exist in the request
     if (!cookies?.jwt) {
       return res.status(401).json({ message: "Auth failed" });
     }
@@ -18,6 +20,7 @@ exports.logoutUser = async (req, res) => {
     // Check if email is registered or not
     const user = await userModel.find({ refreshToken: refreshToken });
     if (user.length == 0) {
+      // Clear the JWT cookie
       res.clearCookie("jwt", {
         httpOnly: true,
         sameSite: "None",
@@ -26,6 +29,7 @@ exports.logoutUser = async (req, res) => {
       return res.status(204).json({ message: "Logout successful" });
     }
 
+    // Set the refresh token in DB to ""
     await userModel.updateOne(
       {
         email: user[0].email,
@@ -34,6 +38,7 @@ exports.logoutUser = async (req, res) => {
         $set: { refreshToken: "" },
       }
     );
+    // Clear the JWT cookie
     res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
     return res.status(204).json({ message: "Logout successful" });
   } catch (error) {

@@ -1,3 +1,4 @@
+// Class for handling all the remaining unhandled errors
 class errorHandler extends Error {
   constructor(message, statusCode) {
     super(message)

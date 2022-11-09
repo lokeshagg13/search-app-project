@@ -7,6 +7,7 @@ const { userModel } = require("../Models/userModel");
 
 require("dotenv").config();
 
+// Controller for logging user in
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -43,6 +44,7 @@ exports.loginUser = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
+    // Create refresh token to allow user to refresh their accessToken 
     const refreshToken = jwt.sign(
       {
         email: email,
@@ -51,16 +53,20 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    // Set refresh tokens in the user DB so as to allow early logouts from user (when user logs out before the expiry of
+    // refresh tokens)
     await userModel.updateOne(
       { email: email },
       { $set: { refreshToken: refreshToken } }
     );
+    // Refresh tokens will be HTTP only so that they cant be accessed within Javascript
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       sameSite: 'None',
       secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
+    // Send back in response body only the accessToken
     res.status(200).json({
       accessToken,
     });
