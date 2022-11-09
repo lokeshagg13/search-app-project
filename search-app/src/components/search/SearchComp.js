@@ -1,7 +1,8 @@
 import SearchRes from "./SearchRes";
 
 function SearchComp() {
-  return <SearchRes />;
+  const searchExp = "Sample";
+  return <SearchRes searchExp={searchExp} />;
 }
 
 export default SearchComp;
