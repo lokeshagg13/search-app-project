@@ -1,5 +1,7 @@
+import SearchRes from "./SearchRes";
+
 function SearchComp() {
-  return <div>Search Functionality here</div>;
+  return <SearchRes />;
 }
 
 export default SearchComp;
