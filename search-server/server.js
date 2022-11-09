@@ -9,6 +9,7 @@ const credentials = require("./Middleware/credentials");
 const corsOptions = require("./Config/corsOptions");
 const userRouter = require("./Routes/userRoute");
 const authRouter = require("./Routes/authRoute");
+const searchRouter = require("./Routes/searchRoute");
 
 require("dotenv").config();
 
@@ -32,6 +33,7 @@ app.use(cookieParser());
 // Mounting Routers
 app.use("/api/", userRouter);
 app.use("/api/", authRouter);
+app.use("/api/", searchRouter);
 
 // custom middleware for handling invalid api paths
 app.all("*", (req, res, next) => {
