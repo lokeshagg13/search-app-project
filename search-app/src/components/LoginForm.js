@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 import axios from "../api/axios";
 import Notification from "./ui/Notification";
-import AuthContext from "../context/AuthProvider";
 
 import classes from "./LoginForm.module.css";
+import useAuth from "../hooks/useAuth";
 
 const LOGIN_URL = "/api/login";
 
 function LoginForm() {
   const emailRef = useRef();
-  const { setAuth } = useContext(AuthContext);
+  const { setAuth } = useAuth();
 
   const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ function LoginForm() {
       );
 
       const accessToken = response?.data?.accessToken;
-      setAuth({ email, password, accessToken });
+      setAuth({ email, accessToken });
 
       // Clear input fields
       setEmail("");

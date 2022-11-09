@@ -1,20 +1,30 @@
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
-import AuthContext from "../../../context/AuthProvider";
+import useAuth from "../../../hooks/useAuth";
 import LoginIcon from "../../ui/icons/LoginIcon";
 import LogoutIcon from "../../ui/icons/LogoutIcon";
 import SignupIcon from "../../ui/icons/SignupIcon";
 
 import classes from "./main-navigation.module.css";
 
+const LOGOUR_URL = "/api/logout";
+
 function MainNavigation() {
-  const { auth, setAuth } = useContext(AuthContext);
+  const { auth, setAuth } = useAuth();
+  const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
   async function logoutHandler() {
-    setAuth({});
-    navigate("/", { replace: true });
+    try {
+      await axiosPrivate.get(LOGOUR_URL);
+
+      setAuth({});
+      navigate("/", { replace: true });
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   return (

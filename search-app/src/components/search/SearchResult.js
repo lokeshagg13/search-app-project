@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext } from "react";
-import axios from "../../api/axios";
-import AuthContext from "../../context/AuthProvider";
+import { useEffect, useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import Loader from "../ui/Loader";
 import Notification from "../ui/Notification";
 
 import classes from "./SearchResult.module.css";
@@ -8,7 +8,7 @@ import classes from "./SearchResult.module.css";
 const GET_ALL_IMAGES_URL = "/api/images/all";
 const SEARCH_IMAGE_URL = "/api/images/search";
 
-async function getAllImagesFromBackend(auth, nextCursor) {
+async function getAllImagesFromBackend(axiosPrivate, nextCursor) {
   let response;
   try {
     const params = new URLSearchParams();
@@ -16,11 +16,7 @@ async function getAllImagesFromBackend(auth, nextCursor) {
       params.append("nextCursor", nextCursor);
     }
 
-    response = await axios.get(`${GET_ALL_IMAGES_URL}?${params}`, {
-      headers: {
-        authorization: `Bearer ${auth.accessToken}`,
-      },
-    });
+    response = await axiosPrivate.get(`${GET_ALL_IMAGES_URL}?${params}`);
 
     return { status: "SUCCESS", ...response.data };
   } catch (error) {
@@ -29,7 +25,11 @@ async function getAllImagesFromBackend(auth, nextCursor) {
   }
 }
 
-async function searchImagesFromBackend(searchExp, auth, nextCursor = null) {
+async function searchImagesFromBackend(
+  axiosPrivate,
+  searchExp,
+  nextCursor = null
+) {
   let response;
   try {
     const requestBody = { searchExp };
@@ -37,12 +37,10 @@ async function searchImagesFromBackend(searchExp, auth, nextCursor = null) {
       requestBody["nextCursor"] = nextCursor;
     }
 
-    response = await axios.post(SEARCH_IMAGE_URL, JSON.stringify(requestBody), {
-      headers: {
-        authorization: `Bearer ${auth.accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    response = await axiosPrivate.post(
+      SEARCH_IMAGE_URL,
+      JSON.stringify(requestBody)
+    );
 
     return { status: "SUCCESS", ...response.data };
   } catch (error) {
@@ -53,20 +51,22 @@ async function searchImagesFromBackend(searchExp, auth, nextCursor = null) {
 
 function SearchResult(props) {
   const { searchExp } = props;
-  const { auth } = useContext(AuthContext);
+  const axiosPrivate = useAxiosPrivate();
+  const [isLoading, setIsLoading] = useState(true);
   const [imageList, setImageList] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       let result;
       if (!searchExp) {
-        result = await getAllImagesFromBackend(auth);
+        result = await getAllImagesFromBackend(axiosPrivate);
       } else {
-        result = await searchImagesFromBackend(searchExp, auth);
+        result = await searchImagesFromBackend(axiosPrivate, searchExp);
       }
-      if (result?.status == "SUCCESS") {
+      if (result?.status === "SUCCESS") {
         setErrorMsg(null);
         setImageList(result.resources);
         setNextCursor(result.next_cursor || null);
@@ -78,18 +78,28 @@ function SearchResult(props) {
         } else
           setErrorMsg("Error while searching for images. Please try again");
       }
+      setIsLoading(false);
     };
     fetchData();
   }, [searchExp]);
 
   async function handleLoadMoreClick() {
     let result;
+    setIsLoading(true);
+    window.scroll({
+      bottom: document.body.scrollHeight,
+      left: 0
+    });
     if (!searchExp) {
-      result = await getAllImagesFromBackend(auth, nextCursor);
+      result = await getAllImagesFromBackend(axiosPrivate, nextCursor);
     } else {
-      result = await searchImagesFromBackend(searchExp, auth, nextCursor);
+      result = await searchImagesFromBackend(
+        axiosPrivate,
+        searchExp,
+        nextCursor
+      );
     }
-    if (result?.status == "SUCCESS") {
+    if (result?.status === "SUCCESS") {
       setErrorMsg(null);
       setImageList((imageList) => [...imageList, ...result.resources]);
       setNextCursor(result.next_cursor || null);
@@ -99,18 +109,14 @@ function SearchResult(props) {
         setErrorMsg(result.message);
       } else setErrorMsg("Error while searching for images. Please try again");
     }
+    setIsLoading(false);
   }
 
   return (
     <>
-      <div className={classes.imageGrid}>
-        {errorMsg && <Notification type="error" message={errorMsg} />}
-        {!errorMsg && imageList?.length == 0 && (
-          <Notification type="error" message="No Search Results found" />
-        )}
-        {!errorMsg &&
-          imageList?.length > 0 &&
-          imageList.map((image) => (
+      {!errorMsg && imageList?.length > 0 && (
+        <div className={classes.imageGrid}>
+          {imageList.map((image) => (
             <img
               className={classes.imageElement}
               key={image.public_id}
@@ -119,7 +125,13 @@ function SearchResult(props) {
               alt={image.public_id}
             />
           ))}
-      </div>
+        </div>
+      )}
+      {errorMsg && <Notification type="error" message={errorMsg} />}
+      {!errorMsg && !isLoading && imageList?.length === 0 && (
+        <Notification type="error" message="No Search Results found" />
+      )}
+      {!errorMsg && isLoading && <Loader />}
       <div className={classes.actions}>
         {nextCursor && <button onClick={handleLoadMoreClick}>Load More</button>}
       </div>

@@ -10,6 +10,8 @@ const corsOptions = require("./Config/corsOptions");
 const userRouter = require("./Routes/userRoute");
 const authRouter = require("./Routes/authRoute");
 const searchRouter = require("./Routes/searchRoute");
+const refreshRouter = require("./Routes/refreshRoute");
+const logoutRouter = require("./Routes/logoutRoute");
 
 require("dotenv").config();
 
@@ -30,10 +32,15 @@ app.use(express.json());
 // built-in middleware cookie parser
 app.use(cookieParser());
 
+
+
 // Mounting Routers
 app.use("/api/", userRouter);
 app.use("/api/", authRouter);
 app.use("/api/", searchRouter);
+app.use("/api/", refreshRouter);
+app.use("/api/", logoutRouter);
+
 
 // custom middleware for handling invalid api paths
 app.all("*", (req, res, next) => {

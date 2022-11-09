@@ -35,6 +35,7 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid login credentials" });
     }
 
+    // Created using node command require('crypto').randomBytes(64).toString('hex')
     const accessToken = jwt.sign(
       {
         email: email,
@@ -42,7 +43,24 @@ exports.loginUser = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
+    const refreshToken = jwt.sign(
+      {
+        email: email,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
 
+    await userModel.updateOne(
+      { email: email },
+      { $set: { refreshToken: refreshToken } }
+    );
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({
       accessToken,
     });
